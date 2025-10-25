@@ -11,10 +11,10 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         const val SIZE_BYTES: Int = 16
         const val SIZE_BITS: Int = 128
 
-        fun valueOf(high: ULong, low: ULong): Int128 = Int128(high, low)
+        @Suppress("NOTHING_TO_INLINE") inline fun valueOf(high: ULong, low: ULong): Int128 = Int128(high, low)
         fun valueOf(low: ULong): Int128 = Int128(0uL, low)
-        fun valueOf(low: UInt): Int128 = Int128(0uL, low.toULong())
-        fun valueOf(low: Int): Int128 = valueOf(low.toLong())
+        @Suppress("NOTHING_TO_INLINE") inline fun valueOf(low: UInt): Int128 = Int128(0uL, low.toULong())
+        @Suppress("NOTHING_TO_INLINE") inline fun valueOf(low: Int): Int128 = valueOf(low.toLong())
 
         fun valueOf(low: Long): Int128 =
             if (low < 0L) Int128(ULong.MAX_VALUE, low.toULong())
@@ -83,9 +83,9 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         return cvt.compareTo(cvt2)
     }
 
-    infix operator fun plus(other: Int): Int128 = plus(valueOf(other))
-    infix operator fun plus(other: UInt): Int128 = plus(other.toULong())
-    infix operator fun plus(other: Long): Int128 = plus(valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun plus(other: Int): Int128 = plus(valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun plus(other: UInt): Int128 = plus(other.toULong())
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun plus(other: Long): Int128 = plus(valueOf(other))
 
     infix operator fun plus(other: ULong): Int128 {
         val newLow = low + other
@@ -100,21 +100,21 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         return Int128(newHigh, newLow)
     }
 
-    infix operator fun minus(other: Int): Int128 = plus(valueOf(-other))
-    infix operator fun minus(other: Long): Int128 = plus(valueOf(-other))
-    infix operator fun minus(other: UInt): Int128 = plus(-valueOf(other))
-    infix operator fun minus(other: ULong): Int128 = plus(-valueOf(other))
-    infix operator fun minus(other: Int128): Int128 = plus(-other)
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun minus(other: Int): Int128 = plus(valueOf(-other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun minus(other: Long): Int128 = plus(valueOf(-other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun minus(other: UInt): Int128 = plus(-valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun minus(other: ULong): Int128 = plus(-valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun minus(other: Int128): Int128 = plus(-other)
 
-    operator fun unaryMinus(): Int128 = Int128(
+    @Suppress("NOTHING_TO_INLINE") inline operator fun unaryMinus(): Int128 = Int128(
         high.inv() + (if (low == 0uL) 1u else 0u),
         low.inv() + 1u
     )
 
-    infix operator fun times(other: Int): Int128 = times(valueOf(other))
-    infix operator fun times(other: UInt): Int128 = times(other.toULong())
-    infix operator fun times(other: Long): Int128 = times(valueOf(other))
-    infix operator fun times(other: ULong): Int128 = times(valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun times(other: Int): Int128 = times(valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun times(other: UInt): Int128 = times(other.toULong())
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun times(other: Long): Int128 = times(valueOf(other))
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun times(other: ULong): Int128 = times(valueOf(other))
 
     infix operator fun times(other: Int128): Int128 {
         if (equals(MINUS_ONE))
@@ -185,19 +185,19 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         return divResult to remResult
     }
 
-    infix operator fun div(other: Int): Int128 = divMod(valueOf(other)).first
-    infix operator fun div(other: Long): Int128 = divMod(valueOf(other)).first
-    infix operator fun div(other: Int128): Int128 = divMod(other).first
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun div(other: Int): Int128 = divMod(valueOf(other)).first
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun div(other: Long): Int128 = divMod(valueOf(other)).first
+    @Suppress("NOTHING_TO_INLINE") inline infix operator fun div(other: Int128): Int128 = divMod(other).first
 
-    operator fun rem(other: Int): Int128 = divMod(valueOf(other)).second
-    operator fun rem(other: Long): Int128 = divMod(valueOf(other)).second
-    operator fun rem(other: Int128): Int128 = divMod(other).second
+    @Suppress("NOTHING_TO_INLINE") inline operator fun rem(other: Int): Int128 = divMod(valueOf(other)).second
+    @Suppress("NOTHING_TO_INLINE") inline operator fun rem(other: Long): Int128 = divMod(valueOf(other)).second
+    @Suppress("NOTHING_TO_INLINE") inline operator fun rem(other: Int128): Int128 = divMod(other).second
 
-    fun inv(): Int128 = Int128(high.inv(), low.inv())
+    @Suppress("NOTHING_TO_INLINE") inline fun inv(): Int128 = Int128(high.inv(), low.inv())
 
-    infix fun and(other: Int128): Int128 = Int128(high and other.high, low and other.low)
-    infix fun or(other: Int128): Int128 = Int128(high or other.high, low or other.low)
-    infix fun xor(other: Int128): Int128 = Int128(high xor other.high, low xor other.low)
+    @Suppress("NOTHING_TO_INLINE") inline infix fun and(other: Int128): Int128 = Int128(high and other.high, low and other.low)
+    @Suppress("NOTHING_TO_INLINE") inline infix fun or(other: Int128): Int128 = Int128(high or other.high, low or other.low)
+    @Suppress("NOTHING_TO_INLINE") inline infix fun xor(other: Int128): Int128 = Int128(high xor other.high, low xor other.low)
 
     fun numberOfLeadingZeros(): Int {
         if (high == 0uL) return low.countLeadingZeroBits() + 64
@@ -209,7 +209,7 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         return low.countTrailingZeroBits()
     }
 
-    fun countOneBits(): Int = high.countOneBits() + low.countOneBits()
+    @Suppress("NOTHING_TO_INLINE") inline fun countOneBits(): Int = high.countOneBits() + low.countOneBits()
 
     infix fun shl(count: Int): Int128 {
         if (count == 0) return this
@@ -262,12 +262,12 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
     override fun toFloat(): Float = toLong().toFloat()
     override fun toDouble(): Double = toLong().toDouble()
     override fun toLong(): Long = if (isNegative()) -(low.inv() + 1u).toLong() else low.toLong()
-    fun toUInt128(): UInt128 = UInt128(high, low)
+    @Suppress("NOTHING_TO_INLINE") inline fun toUInt128(): UInt128 = UInt128(high, low)
 
-    fun isNegative(): Boolean = (high and 0x8000_0000_0000_0000uL) != 0uL
-    fun isPositive(): Boolean = (high and 0x8000_0000_0000_0000uL) == 0uL
-    fun isGtZero(): Boolean = (high and 0x8000_0000_0000_0000uL) == 0uL
-    fun isZero(): Boolean = high == 0uL && low == 0uL
+    @Suppress("NOTHING_TO_INLINE") inline fun isNegative(): Boolean = (high and 0x8000_0000_0000_0000uL) != 0uL
+    @Suppress("NOTHING_TO_INLINE") inline fun isPositive(): Boolean = (high and 0x8000_0000_0000_0000uL) == 0uL
+    @Suppress("NOTHING_TO_INLINE") inline fun isGtZero(): Boolean = (high and 0x8000_0000_0000_0000uL) == 0uL
+    @Suppress("NOTHING_TO_INLINE") inline fun isZero(): Boolean = high == 0uL && low == 0uL
 
     fun increment(): Int128 = plus(ONE)
     fun decrement(): Int128 = minus(ONE)
@@ -285,7 +285,7 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
     override fun toString(): String = toString(10)
 
     operator fun rangeTo(other: Int128) = Int128Range(this, other)
-    operator fun rangeUntil(other: Int128) = Int128Range(this, if (this <= other) other else other.increment())
+    operator fun rangeUntil(other: Int128) = Int128Range(this, other.decrement())
     infix fun downTo(to: Int128): Int128Range = Int128Range(this, to, MINUS_ONE)
 
     infix fun rotateRight(dist: Int): Int128 {
@@ -298,7 +298,7 @@ data class Int128(val high: ULong, val low: ULong) : Comparable<Int128>, Number(
         return (this ushr (128 - shift)) or (this shl shift)
     }
 
-    inline fun abs(): Int128 = if (this < ZERO) -this else this
+    @Suppress("NOTHING_TO_INLINE") inline fun abs(): Int128 = if (this < ZERO) -this else this
 
 //    override fun equals(other: Any?): Boolean {
 //        if (this === other)

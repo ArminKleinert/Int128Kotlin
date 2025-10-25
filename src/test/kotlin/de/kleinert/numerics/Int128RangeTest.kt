@@ -1,27 +1,33 @@
 package de.kleinert.numerics
 
-import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class Int128RangeTest {
     private val zero = Int128.ZERO
     private val five = Int128.valueOf(5uL)
-    private val six = UInt128.valueOf(6uL)
 
     @Test
-    fun testEquals() {
+    fun testClosedEquals() {
         Assertions.assertEquals(zero..five, zero..five)
         Assertions.assertEquals(five..zero, five..zero)
         Assertions.assertEquals(zero..five, Int128Range(zero, five, Int128.ONE))
-        Assertions.assertEquals(five..zero, Int128Range(five, zero, Int128.MINUS_ONE))
+        Assertions.assertEquals(five..zero, Int128Range(five, zero, Int128.ONE))
     }
 
     @Test
-    fun testBasicAscendingRange() {
+    fun testOpenEquals() {
+        Assertions.assertEquals(zero..<five, zero..<five)
+        Assertions.assertEquals(five..<zero, five..<zero)
+        Assertions.assertEquals(zero..<five, Int128Range(zero, five.decrement(), Int128.ONE))
+        Assertions.assertEquals(five..<zero, Int128Range(five, zero.decrement(), Int128.ONE))
+    }
+
+    @Test
+    fun testClosedBasicAscendingRange() {
         val r = zero..five
         Assertions.assertEquals(6, r.size)
-        Assertions.assertEquals(six, r.size128)
+        Assertions.assertEquals(UInt128.valueOf(6uL), r.size128)
         Assertions.assertTrue(zero in r)
         Assertions.assertTrue(five in r)
         Assertions.assertTrue(five - 1 in r)
@@ -29,139 +35,211 @@ class Int128RangeTest {
         Assertions.assertFalse(Int128.MINUS_ONE in r)
         Assertions.assertFalse(Int128.MAX_VALUE in r)
         Assertions.assertFalse(Int128.MIN_VALUE in r)
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Test
-    fun testForwardRangeIteration() {
-        val range = Int128Range(Int128.ZERO, five)
-        val list = range.toList()
-        Assertions.assertEquals(listOf(0uL, 1uL, 2uL, 3uL, 4uL, 5uL).map { Int128.valueOf(it) }, list)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testBackwardRangeIteration() {run {
-        val range = Int128Range(five, Int128.ZERO, Int128.MINUS_ONE)
-        val list = range.toList()
-        Assertions.assertEquals(listOf(5uL, 4uL, 3uL, 2uL, 1uL, 0uL).map { Int128.valueOf(it) }, list)
-    }
-        run{
-        val range = five downTo  Int128.ZERO
-        val list = range.toList()
-        Assertions.assertEquals(listOf(5uL, 4uL, 3uL, 2uL, 1uL, 0uL).map { Int128.valueOf(it) }, list)}
-    }
-
-    @Test
-    fun testStepRange() {
-        val range = Int128Range(Int128.ZERO, Int128.valueOf(10uL), Int128.valueOf(2))
-        val list = range.toList()
-        Assertions.assertEquals(listOf(0uL, 2uL, 4uL, 6uL, 8uL, 10uL).map { Int128.valueOf(it) }, list)
+    fun testOpenBasicAscendingRange() {
+        val r = zero..<five
+        println(r)
+        Assertions.assertEquals(5, r.size)
+        Assertions.assertEquals(UInt128.valueOf(5uL), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five !in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertFalse(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testNegativeStepRange() {
-        val range = Int128Range(Int128.valueOf(10uL), Int128.ZERO, Int128.valueOf(-2))
-        val list = range.toList()
-        Assertions.assertEquals(listOf(10uL, 8uL, 6uL, 4uL, 2uL, 0uL).map { Int128.valueOf(it) }, list)
+    fun testClosedSteppedAscendingRange() {
+        val r = Int128Range(zero, five, Int128.valueOf(2uL))
+        Assertions.assertEquals(3, r.size)
+        Assertions.assertEquals(UInt128.valueOf(3uL), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five !in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertFalse(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testContains() {
-        val range = Int128Range(Int128.ZERO, Int128.valueOf(10))
-        Assertions.assertTrue(five in range)
-        Assertions.assertTrue(Int128.valueOf(0uL) in range)
-        Assertions.assertTrue(Int128.valueOf(10uL) in range)
-        Assertions.assertTrue(Int128.valueOf(11uL) !in range)
+    fun testClosedSteppedFromRangeAscendingRange() {
+        val r = zero..five step Int128.valueOf(2uL)
+        Assertions.assertEquals(3, r.size)
+        Assertions.assertEquals(UInt128.valueOf(3uL), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five !in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertFalse(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testRangeAscending() {
-        val range = five downTo Int128.ZERO
-        Assertions.assertFalse(range.isEmpty())
-        Assertions.assertEquals(6, range.size)
+    fun testOpenSteppedAscendingRange() {
+        val r = Int128Range(zero, five.decrement(), Int128.valueOf(2uL))
+        Assertions.assertEquals(3, r.size)
+        Assertions.assertEquals(UInt128.valueOf(3uL), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five !in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertFalse(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testEmptyRangeAscending() {
-        val range = Int128Range(five, Int128.valueOf(0), Int128.ONE)
-        Assertions.assertTrue(range.isEmpty())
-        Assertions.assertEquals(0, range.size)
+    fun testOpenSteppedFromRangeAscendingRange() {
+        val r = zero..<five step Int128.valueOf(2uL)
+        Assertions.assertEquals(3, r.size)
+        Assertions.assertEquals(UInt128.valueOf(3uL), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five !in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertFalse(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testEmptyRangeDescending() {
-        val range = Int128Range(Int128.valueOf(0), five, Int128.valueOf(-1))
-        Assertions.assertTrue(range.isEmpty())
-        Assertions.assertEquals(0, range.size)
+    fun testClosedVeryBigRange() {
+        val r = zero..Int128.MAX_VALUE
+        Assertions.assertThrows(ArithmeticException::class.java) {r.size}
+        Assertions.assertEquals(Int128.MAX_VALUE.toUInt128().increment(), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertTrue(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertTrue(Int128.MAX_VALUE in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testSizeSmallRange() {
-        val range = Int128Range(Int128.ZERO, Int128.valueOf(4))
-        Assertions.assertEquals(5, range.size)
+    fun testOpenVeryBigRange() {
+        val r = zero..<Int128.MAX_VALUE
+        Assertions.assertThrows(ArithmeticException::class.java) {r.size}
+        Assertions.assertEquals(Int128.MAX_VALUE.toUInt128(), r.size128)
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five in r)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertTrue(five + 1 in r)
+        Assertions.assertFalse(Int128.MINUS_ONE in r)
+        Assertions.assertFalse(Int128.MAX_VALUE in r)
+        Assertions.assertTrue(Int128.MAX_VALUE.decrement() in r)
+        Assertions.assertFalse(Int128.MIN_VALUE in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
     @Test
-    fun testSizeWithStep() {
-        val range = Int128Range(Int128.ZERO, Int128.valueOf(9uL), Int128.valueOf(2uL))
-        Assertions.assertEquals(5, range.size)
+    fun testClosedRangeReversed() {
+        val r = zero..five
+        val rr = r.reversed()
+        Assertions.assertEquals(r.first, rr.last)
+        Assertions.assertEquals(r.last, rr.first)
+        Assertions.assertEquals(r.step, -rr.step)
+        Assertions.assertEquals(r, rr.reversed())
+        Assertions.assertEquals(rr, rr.reversed().reversed())
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five in r)
+        Assertions.assertTrue(zero in rr)
+        Assertions.assertTrue(five in rr)
+        Assertions.assertTrue(five - 1 in r)
+        Assertions.assertTrue(five - 1 in rr)
+        Assertions.assertFalse(r.isEmpty())
+        Assertions.assertFalse(rr.isEmpty())
     }
 
     @Test
-    fun testSizeThrowsWhenTooLarge() {
-        // Simulate very large range (just using difference exceeding Int.MAX_VALUE)
-        val largeStart = Int128.ZERO
-        val largeEnd = Int128.valueOf(Int.MAX_VALUE.toLong()) + Int128.valueOf(10uL)
-        val largeRange = Int128Range(largeStart, largeEnd)
-
-        Assertions.assertThrows(ArithmeticException::class.java) { largeRange.size }
+    fun testOpenRangeReversed() {
+        val r = zero..<five
+        val rr = r.reversed()
+        Assertions.assertEquals(r.first, rr.last)
+        Assertions.assertEquals(r.last, rr.first)
+        Assertions.assertEquals(r.step, -rr.step)
+        Assertions.assertEquals(r, rr.reversed())
+        Assertions.assertEquals(rr, rr.reversed().reversed())
+        Assertions.assertTrue(zero in r)
+        Assertions.assertTrue(five.decrement() in r)
+        Assertions.assertTrue(zero in rr)
+        Assertions.assertTrue(five.decrement() in rr)
+        Assertions.assertTrue(five - 2 in r)
+        Assertions.assertTrue(five - 2 in rr)
+        Assertions.assertFalse(r.isEmpty())
+        Assertions.assertFalse(rr.isEmpty())
     }
 
     @Test
-    fun testSize128AlwaysWorks() {
-        val start = Int128.ZERO
-        val end = Int128.valueOf(Long.MAX_VALUE)
-        val range = start..<end
-
-        // Should not throw
-        val size128 = range.size128
-        Assertions.assertEquals(UInt128.valueOf(Long.MAX_VALUE.toULong()+1uL), size128)
+    fun testInvalidStep() {
+        Assertions.assertThrows(IllegalArgumentException::class.java) {Int128Range(zero, five, Int128.ZERO)}
+        Assertions.assertThrows(IllegalArgumentException::class.java) {Int128Range(zero, five, Int128.MIN_VALUE)}
     }
 
-    @Test
-    fun testStepNegative() {
-        val range = Int128Range(five, Int128.ZERO, Int128.valueOf(-2L))
-        Assertions.assertEquals(3, range.size)
-        Assertions.assertEquals(listOf(5uL, 3uL, 1uL).map { Int128.valueOf(it) }, range.toList())
+    @Test fun testClosedSingletonRange() {
+        val r =zero..zero
+        Assertions.assertEquals(1, r.size)
+        Assertions.assertEquals(UInt128.ONE, r.size128)
+        Assertions.assertTrue(Int128.ZERO in r)
+        Assertions.assertFalse(r.isEmpty())
     }
 
-    @Test
-    fun testZeroStepThrows() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) { Int128Range(Int128.ZERO, Int128.valueOf(10uL), Int128.ZERO) }
+    @Test fun testOpenSingletonRange() {
+        val r =zero..<Int128.ONE
+        Assertions.assertEquals(1, r.size)
+        Assertions.assertEquals(UInt128.ONE, r.size128)
+        Assertions.assertTrue(Int128.ZERO in r)
+        Assertions.assertFalse(r.isEmpty())
+    }
+
+    @Test fun testClosedEmptyRange() {
+        Assertions.assertTrue((Int128.ONE..Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.ONE, Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.ONE, Int128.MIN_VALUE).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.MAX_VALUE, Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.MAX_VALUE, Int128.MIN_VALUE).isEmpty())
+    }
+
+    @Test fun testOpenEmptyRange() {
+        Assertions.assertTrue((Int128.ZERO..<Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.ONE, Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.ONE, Int128.MIN_VALUE).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.MAX_VALUE, Int128.ZERO).isEmpty())
+        Assertions.assertTrue(Int128Range(Int128.MAX_VALUE, Int128.MIN_VALUE).isEmpty())
+    }
+
+    @Test fun testClosedRangeIterable() {
+        val r =zero..five
+        Assertions.assertEquals(listOf(0,1,2,3,4,5).map{Int128.valueOf(it)}, r.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4,5).filter{it%2==0}.map{Int128.valueOf(it)},
+            r.filter{(it%Int128.valueOf(2uL)).isZero()}.toList())
+
+        var sum = Int128.ZERO
+        for (i in r) sum += i
+        Assertions.assertEquals(Int128.valueOf(15uL), sum)
+    }
+
+    @Test fun testOpenRangeIterable() {
+        val r =zero..<five
+        Assertions.assertEquals(listOf(0,1,2,3,4).map{Int128.valueOf(it)}, r.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4).filter{it%2==0}.map{Int128.valueOf(it)},
+            r.filter{(it%Int128.valueOf(2uL)).isZero()}.toList())
+
+        var sum = Int128.ZERO
+        for (i in r) sum += i
+        Assertions.assertEquals(Int128.valueOf(10uL), sum)
     }
 }

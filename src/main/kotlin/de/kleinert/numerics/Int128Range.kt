@@ -1,28 +1,31 @@
 package de.kleinert.numerics
 
 
-data class Int128Range (
+data class Int128Range(
     override val start: Int128,
     override val endInclusive: Int128,
     val step: Int128 = Int128.ONE
-) :  ClosedRange<Int128>, OpenEndRange<Int128>, Iterable<Int128> {
+) : ClosedRange<Int128>, OpenEndRange<Int128>, Iterable<Int128> {
     companion object {
-        private inline fun  mod(a: Int128, b: Int128): Int128 {
+        private inline fun mod(a: Int128, b: Int128): Int128 {
             val mod = a % b
             return if (mod.isPositive()) mod else mod + b
         }
+
         private inline fun differenceModulo(a: Int128, b: Int128, c: Int128): Int128 {
             return mod(mod(a, c) - mod(b, c), c)
         }
+
         private fun getProgressionLastElement(start: Int128, end: Int128, step: Int128): Int128 = when {
             step.isZero() -> throw kotlin.IllegalArgumentException("Step is zero.")
-            step .isPositive() -> if (start >= end) end else end - differenceModulo(end, start, step)
+            step.isPositive() -> if (start >= end) end else end - differenceModulo(end, start, step)
             else -> if (start <= end) end else end + differenceModulo(start, end, -step)
         }
     }
+
     init {
         if (step.isZero()) throw kotlin.IllegalArgumentException("Step must be non-zero.")
-        if (step == Int128.MIN_VALUE) throw kotlin.IllegalArgumentException("Step must be greater than Int.MIN_VALUE to avoid overflow on negation.")
+        if (step == Int128.MIN_VALUE) throw kotlin.IllegalArgumentException("Step must be greater than Int128.MIN_VALUE to avoid overflow on negation.")
     }
 
     private val isAscending = step > Int128.ZERO
@@ -37,24 +40,25 @@ data class Int128Range (
      */
     val last: Int128 = getProgressionLastElement(start, endInclusive, step)
 
-    override val endExclusive: Int128 get() {
-        if (last == Int128.MAX_VALUE) error("Cannot return the exclusive upper bound of a range that includes MAX_VALUE.")
-        return last.increment()
-    }
+    override val endExclusive: Int128
+        get() {
+            if (last == Int128.MAX_VALUE) error("Cannot return the exclusive upper bound of a range that includes MAX_VALUE.")
+            return last.increment()
+        }
 
     val size: Int
         get() {
             val steps = size128
-            if (steps > Int128.valueOf(Int.MAX_VALUE))
+            if (steps > UInt128.valueOf(Int.MAX_VALUE))
                 throw ArithmeticException("Range too large to represent as Int")
             return steps.toInt()
         }
 
-    val size128: Int128
+    val size128: UInt128
         get() {
-            if (isEmpty()) return Int128.ONE
+            if (isEmpty()) return UInt128.ONE
             val diff = if (isAscending) endInclusive - start else start - endInclusive
-            return (diff / step.abs()) + Int128.ONE
+            return (diff / step.abs()).toUInt128() + UInt128.ONE
         }
 
     override fun contains(value: Int128): Boolean {
@@ -79,8 +83,7 @@ data class Int128Range (
             if (value == finalElement) {
                 if (!hasNext) throw kotlin.NoSuchElementException()
                 hasNext = false
-            }
-            else {
+            } else {
                 next += step
             }
             return value
@@ -95,6 +98,10 @@ data class Int128Range (
      */
     override fun isEmpty(): Boolean = if (step.isGtZero()) first > last else first < last
 
+    fun reversed() = Int128Range(last, first, -step)
+
+    infix fun step(step: Int128): Int128Range = Int128Range(first, last, if (this.step > Int128.ZERO) step else -step)
+
     override fun equals(other: Any?): Boolean =
         other is Int128Range && (isEmpty() && other.isEmpty() ||
                 first == other.first && last == other.last && step == other.step)
@@ -102,5 +109,6 @@ data class Int128Range (
     override fun hashCode(): Int =
         if (isEmpty()) -1 else (31 * (31 * first.hashCode() + last.hashCode()) + step.hashCode())
 
-    override fun toString(): String = if (step.isPositive()) "$first..$last step $step" else "$first downTo $last step ${-step}"
+    override fun toString(): String =
+        if (step.isPositive()) "$first..$last step $step" else "$first downTo $last step ${-step}"
 }
