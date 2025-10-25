@@ -276,6 +276,12 @@ data class UInt128(val high: ULong, val low: ULong) : Comparable<UInt128>, Numbe
         return (this shr (128 - shift)) or (this shl shift)
     }
 
+
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun toLongArray() = Int128(high,low).toLongArray()
+
+    fun toByteArray(): ByteArray = Int128(high,low).toByteArray()
+
 //    override infix fun equals(other: Any?): Boolean {
 //        if (this === other)
 //            return true

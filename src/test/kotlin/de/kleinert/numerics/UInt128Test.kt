@@ -517,6 +517,83 @@ class UInt128Test {
         }
     }
 
+    @Test
+    fun toLongArray() {
+        Assertions.assertArrayEquals(arrayOf(0uL, 0uL), UInt128.ZERO.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(0uL, 1uL), UInt128.ONE.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(Long.MAX_VALUE.toULong(), ULong.MAX_VALUE), Int128.MAX_VALUE.toUInt128().toLongArray())
+        Assertions.assertArrayEquals(arrayOf(ULong.MAX_VALUE, ULong.MAX_VALUE), UInt128.MAX_VALUE.toLongArray())
+    }
+
+    @Test
+    fun toByteArray() {
+        Assertions.assertArrayEquals(
+            byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            UInt128.ZERO.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+            UInt128.ONE.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf(127.toByte(), -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
+            Int128.MAX_VALUE.toUInt128().toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
+            UInt128.MAX_VALUE.toByteArray()
+        )
+    }
+
+    @Test
+    fun rotateRight() {
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateRight(0))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateRight(32))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateRight(64))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateRight(128))
+
+        Assertions.assertEquals(UInt128.ONE, UInt128.ONE.rotateRight(0))
+        Assertions.assertEquals(UInt128.valueOf(1uL shl 32, 0uL), UInt128.ONE.rotateRight(32))
+        Assertions.assertEquals(UInt128.valueOf(1uL, 0uL), UInt128.ONE.rotateRight(64))
+        Assertions.assertEquals(UInt128.ONE, UInt128.ONE.rotateRight(128))
+
+        Assertions.assertEquals(UInt128.MAX_VALUE, UInt128.MAX_VALUE.rotateRight(0))
+        Assertions.assertEquals(
+            UInt128.valueOf(0xFFFFFFFF7FFFFFFFuL, 0xFFFFFFFFFFFFFFFFuL),
+            Int128.MAX_VALUE.toUInt128().rotateRight(32)
+        )
+        Assertions.assertEquals(
+            UInt128.valueOf(ULong.MAX_VALUE, Long.MAX_VALUE.toULong()),
+            Int128.MAX_VALUE.toUInt128().rotateRight(64)
+        )
+        Assertions.assertEquals(Int128.MAX_VALUE.toUInt128(), Int128.MAX_VALUE.toUInt128().rotateRight(128))
+    }
+
+    @Test
+    fun rotateLeft() {
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateLeft(0))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateLeft(32))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateLeft(64))
+        Assertions.assertEquals(UInt128.ZERO, UInt128.ZERO.rotateLeft(128))
+
+        Assertions.assertEquals(UInt128.ONE, Int128.ONE.toUInt128().rotateLeft(0))
+        Assertions.assertEquals(UInt128.valueOf(0x0uL, 0x100000000uL), UInt128.ONE.rotateLeft(32))
+        Assertions.assertEquals(UInt128.valueOf(1uL, 0uL), UInt128.ONE.rotateLeft(64))
+        Assertions.assertEquals(UInt128.ONE, UInt128.ONE.rotateLeft(128))
+
+        Assertions.assertEquals(Int128.MAX_VALUE.toUInt128(), Int128.MAX_VALUE.toUInt128().rotateLeft(0))
+        Assertions.assertEquals(
+            UInt128.valueOf(0xFFFFFFFFFFFFFFFFuL, 0xFFFFFFFF7FFFFFFFuL),
+            Int128.MAX_VALUE.toUInt128().rotateLeft(32)
+        )
+        Assertions.assertEquals(
+            UInt128.valueOf(ULong.MAX_VALUE, Long.MAX_VALUE.toULong()),
+            Int128.MAX_VALUE.toUInt128().rotateLeft(64)
+        )
+        Assertions.assertEquals(Int128.MAX_VALUE.toUInt128(), Int128.MAX_VALUE.toUInt128().rotateLeft(128))
+        Assertions.assertEquals(UInt128.MAX_VALUE, UInt128.MAX_VALUE.rotateLeft(128))
+    }
+
     @Test fun testEqualsInt128() {
         Assertions.assertTrue(UInt128.ZERO == UInt128.ZERO)
         Assertions.assertTrue(UInt128.ONE == UInt128.ONE)

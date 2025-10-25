@@ -41,7 +41,6 @@ class Int128RangeTest {
     @Test
     fun testOpenBasicAscendingRange() {
         val r = zero..<five
-        println(r)
         Assertions.assertEquals(5, r.size)
         Assertions.assertEquals(UInt128.valueOf(5uL), r.size128)
         Assertions.assertTrue(zero in r)

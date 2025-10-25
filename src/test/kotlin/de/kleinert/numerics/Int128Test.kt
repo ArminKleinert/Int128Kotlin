@@ -5,13 +5,15 @@ import org.junit.jupiter.api.Test
 
 class Int128Test {
     @Test
-    fun sizeBytes(){
+    fun sizeBytes() {
         Assertions.assertEquals(16, Int128.SIZE_BYTES)
     }
+
     @Test
-    fun sizeBits(){
+    fun sizeBits() {
         Assertions.assertEquals(128, Int128.SIZE_BITS)
     }
+
     @Test
     fun testToString() {
         var v = Int128.ZERO
@@ -191,9 +193,9 @@ class Int128Test {
         Assertions.assertEquals(Int128.valueOf(2), Int128.valueOf(5) shr 1)
         Assertions.assertEquals(Int128.valueOf(3), Int128.valueOf(6) shr 1)
         Assertions.assertEquals(Int128.valueOf(3), Int128.valueOf(7) shr 1)
-        Assertions.assertEquals(Int128.valueOf(1uL, 0uL), Int128.ONE shr 64)
-        Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE, 0uL), Int128.MAX_VALUE shr 64)
-        Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE shr 1, 0uL), Int128.MAX_VALUE shr 65)
+        Assertions.assertEquals(Int128.ONE, Int128.valueOf(1uL, 0uL) shr 64)
+        Assertions.assertEquals(Int128.valueOf(0uL, Long.MAX_VALUE.toULong()), Int128.MAX_VALUE shr 64)
+        Assertions.assertEquals(Int128.valueOf(0uL, Long.MAX_VALUE.toULong() shr 1), Int128.MAX_VALUE shr 65)
         Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE, ULong.MAX_VALUE), Int128.MINUS_ONE shr 65)
         Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE, ULong.MAX_VALUE shl 62), Int128.MIN_VALUE shr 65)
     }
@@ -218,11 +220,11 @@ class Int128Test {
         Assertions.assertEquals(Int128.valueOf(2), Int128.valueOf(5) ushr 1)
         Assertions.assertEquals(Int128.valueOf(3), Int128.valueOf(6) ushr 1)
         Assertions.assertEquals(Int128.valueOf(3), Int128.valueOf(7) ushr 1)
-        Assertions.assertEquals(Int128.valueOf(1uL, 0uL), Int128.ONE ushr 64)
-        Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE, 0uL), Int128.MAX_VALUE ushr 64)
-        Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE shr 1, 0uL), Int128.MAX_VALUE ushr 65)
-        Assertions.assertEquals(Int128.valueOf(ULong.MAX_VALUE shr 1, 0uL), Int128.MINUS_ONE ushr 65)
-        Assertions.assertEquals(Int128.valueOf(0uL, 0uL), Int128.MIN_VALUE ushr 65)
+        Assertions.assertEquals(Int128.valueOf(0uL, 0uL), Int128.ONE ushr 64)
+        Assertions.assertEquals(Int128.valueOf(0uL, Long.MAX_VALUE.toULong()), Int128.MAX_VALUE ushr 64)
+        Assertions.assertEquals(Int128.valueOf(0uL, Long.MAX_VALUE.toULong() shr 1), Int128.MAX_VALUE ushr 65)
+        Assertions.assertEquals(Int128.valueOf(0uL, ULong.MAX_VALUE shr 1), Int128.MINUS_ONE ushr 65)
+        Assertions.assertEquals(Int128.valueOf(0uL, Long.MIN_VALUE.toULong() / 2uL), Int128.MIN_VALUE ushr 65)
     }
 
     @Test
@@ -570,12 +572,102 @@ class Int128Test {
         }
     }
 
-    @Test fun testRangeToAscending() {
+    @Test
+    fun abs() {
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.abs())
+        Assertions.assertEquals(Int128.ONE, Int128.MINUS_ONE.abs())
+        Assertions.assertEquals(Int128.MAX_VALUE, Int128.MAX_VALUE.abs())
+        Assertions.assertEquals(Int128.MIN_VALUE, Int128.MIN_VALUE.abs())
+    }
+
+    @Test
+    fun toLongArray() {
+        Assertions.assertArrayEquals(arrayOf(0uL, 0uL), Int128.ZERO.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(0uL, 1uL), Int128.ONE.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(Long.MIN_VALUE.toULong(), 0uL), Int128.MIN_VALUE.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(Long.MAX_VALUE.toULong(), ULong.MAX_VALUE), Int128.MAX_VALUE.toLongArray())
+        Assertions.assertArrayEquals(arrayOf(ULong.MAX_VALUE, ULong.MAX_VALUE), Int128.MINUS_ONE.toLongArray())
+    }
+
+    @Test
+    fun toByteArray() {
+        Assertions.assertArrayEquals(
+            byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            Int128.ZERO.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+            Int128.ONE.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf((-0x80).toByte(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            Int128.MIN_VALUE.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf((-0x80).toByte(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            Int128.MIN_VALUE.toByteArray()
+        )
+        Assertions.assertArrayEquals(
+            byteArrayOf(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1),
+            Int128.MINUS_ONE.toByteArray()
+        )
+    }
+
+    @Test
+    fun rotateRight() {
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateRight(0))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateRight(32))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateRight(64))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateRight(128))
+
+        Assertions.assertEquals(Int128.ONE, Int128.ONE.rotateRight(0))
+        Assertions.assertEquals(Int128.valueOf(1uL shl 32, 0uL), Int128.ONE.rotateRight(32))
+        Assertions.assertEquals(Int128.valueOf(1uL, 0uL), Int128.ONE.rotateRight(64))
+        Assertions.assertEquals(Int128.ONE, Int128.ONE.rotateRight(128))
+
+        Assertions.assertEquals(Int128.MAX_VALUE, Int128.MAX_VALUE.rotateRight(0))
+        Assertions.assertEquals(
+            Int128.valueOf(0xFFFFFFFF7FFFFFFFuL, 0xFFFFFFFFFFFFFFFFuL),
+            Int128.MAX_VALUE.rotateRight(32)
+        )
+        Assertions.assertEquals(
+            Int128.valueOf(ULong.MAX_VALUE, Long.MAX_VALUE.toULong()),
+            Int128.MAX_VALUE.rotateRight(64)
+        )
+        Assertions.assertEquals(Int128.MAX_VALUE, Int128.MAX_VALUE.rotateRight(128))
+    }
+
+    @Test
+    fun rotateLeft() {
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateLeft(0))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateLeft(32))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateLeft(64))
+        Assertions.assertEquals(Int128.ZERO, Int128.ZERO.rotateLeft(128))
+
+        Assertions.assertEquals(Int128.ONE, Int128.ONE.rotateLeft(0))
+        Assertions.assertEquals(Int128.valueOf(0x0uL, 0x100000000uL), Int128.ONE.rotateLeft(32))
+        Assertions.assertEquals(Int128.valueOf(1uL, 0uL), Int128.ONE.rotateLeft(64))
+        Assertions.assertEquals(Int128.ONE, Int128.ONE.rotateLeft(128))
+
+        Assertions.assertEquals(Int128.MAX_VALUE, Int128.MAX_VALUE.rotateLeft(0))
+        Assertions.assertEquals(
+            Int128.valueOf(0xFFFFFFFFFFFFFFFFuL, 0xFFFFFFFF7FFFFFFFuL),
+            Int128.MAX_VALUE.rotateLeft(32)
+        )
+        Assertions.assertEquals(
+            Int128.valueOf(ULong.MAX_VALUE, Long.MAX_VALUE.toULong()),
+            Int128.MAX_VALUE.rotateLeft(64)
+        )
+        Assertions.assertEquals(Int128.MAX_VALUE, Int128.MAX_VALUE.rotateLeft(128))
+    }
+
+    @Test
+    fun testRangeToAscending() {
         run {
             val r = (Int128.ZERO..Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.start , Int128.ZERO)
-            Assertions.assertEquals(r.endInclusive , Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.endExclusive , Int128.MAX_VALUE)
+            Assertions.assertEquals(r.start, Int128.ZERO)
+            Assertions.assertEquals(r.endInclusive, Int128.MAX_VALUE.decrement())
+            Assertions.assertEquals(r.endExclusive, Int128.MAX_VALUE)
             Assertions.assertTrue(Int128.ZERO in r)
             Assertions.assertTrue(Int128.ONE in r)
             Assertions.assertTrue(Int128.MAX_VALUE.decrement() in r)
@@ -585,9 +677,9 @@ class Int128Test {
         }
         run {
             val r = (Int128.MINUS_ONE..Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.start , Int128.MINUS_ONE)
-            Assertions.assertEquals(r.endInclusive , Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.endExclusive , Int128.MAX_VALUE)
+            Assertions.assertEquals(r.start, Int128.MINUS_ONE)
+            Assertions.assertEquals(r.endInclusive, Int128.MAX_VALUE.decrement())
+            Assertions.assertEquals(r.endExclusive, Int128.MAX_VALUE)
             Assertions.assertTrue(Int128.ZERO in r)
             Assertions.assertTrue(Int128.ONE in r)
             Assertions.assertTrue(Int128.MAX_VALUE.decrement() in r)
@@ -597,9 +689,9 @@ class Int128Test {
         }
         run {
             val r = (Int128.MIN_VALUE..Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.start , Int128.MIN_VALUE)
-            Assertions.assertEquals(r.endInclusive , Int128.MAX_VALUE.decrement())
-            Assertions.assertEquals(r.endExclusive , Int128.MAX_VALUE)
+            Assertions.assertEquals(r.start, Int128.MIN_VALUE)
+            Assertions.assertEquals(r.endInclusive, Int128.MAX_VALUE.decrement())
+            Assertions.assertEquals(r.endExclusive, Int128.MAX_VALUE)
             Assertions.assertTrue(Int128.ZERO in r)
             Assertions.assertTrue(Int128.ONE in r)
             Assertions.assertTrue(Int128.MAX_VALUE.decrement() in r)
@@ -609,15 +701,16 @@ class Int128Test {
         }
         run {
             val r = (Int128.ZERO..Int128.valueOf(5))
-            Assertions.assertEquals(r.start , Int128.ZERO)
-            Assertions.assertEquals(r.endInclusive , Int128.valueOf(5))
-            Assertions.assertEquals(r.endExclusive , Int128.valueOf(6))
-Assertions.assertEquals(r.size, 6)
-            Assertions.assertEquals(listOf(0,1,2,3,4,5).map{Int128.valueOf(it)}, r.toList())
+            Assertions.assertEquals(r.start, Int128.ZERO)
+            Assertions.assertEquals(r.endInclusive, Int128.valueOf(5))
+            Assertions.assertEquals(r.endExclusive, Int128.valueOf(6))
+            Assertions.assertEquals(r.size, 6)
+            Assertions.assertEquals(listOf(0, 1, 2, 3, 4, 5).map { Int128.valueOf(it) }, r.toList())
         }
     }
 
-    @Test fun testEqualsInt128() {
+    @Test
+    fun testEqualsInt128() {
         Assertions.assertTrue(Int128.ZERO == Int128.ZERO)
         Assertions.assertTrue(Int128.ONE == Int128.ONE)
         Assertions.assertTrue(Int128.MINUS_ONE == Int128.MINUS_ONE)
@@ -626,8 +719,13 @@ Assertions.assertEquals(r.size, 6)
 
         Assertions.assertTrue(Int128(0uL, 0uL) == Int128(0uL, 0uL))
         Assertions.assertTrue(Int128(0uL, 1uL) == Int128(0uL, 1uL))
-        Assertions.assertTrue(Int128(ULong.MAX_VALUE, ULong.MAX_VALUE) ==  Int128(ULong.MAX_VALUE, ULong.MAX_VALUE))
-        Assertions.assertTrue(Int128(Long.MAX_VALUE.toULong(), ULong.MAX_VALUE) == Int128(Long.MAX_VALUE.toULong(), ULong.MAX_VALUE))
+        Assertions.assertTrue(Int128(ULong.MAX_VALUE, ULong.MAX_VALUE) == Int128(ULong.MAX_VALUE, ULong.MAX_VALUE))
+        Assertions.assertTrue(
+            Int128(Long.MAX_VALUE.toULong(), ULong.MAX_VALUE) == Int128(
+                Long.MAX_VALUE.toULong(),
+                ULong.MAX_VALUE
+            )
+        )
         Assertions.assertTrue(Int128(Long.MIN_VALUE.toULong(), 0uL) == Int128(Long.MIN_VALUE.toULong(), 0uL))
         Assertions.assertTrue(Int128(1uL, 0uL) == Int128(1uL, 0uL))
         Assertions.assertTrue(Int128(1uL, 1uL) == Int128(1uL, 1uL))
