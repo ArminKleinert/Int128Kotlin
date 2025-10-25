@@ -262,7 +262,9 @@ data class UInt128(val high: ULong, val low: ULong) : Comparable<UInt128>, Numbe
     fun decrement(): UInt128 = minus(ONE)
 
     operator fun rangeTo(other: UInt128) = UInt128Range(this, other)
-    operator fun rangeUntil(other: UInt128) = UInt128Range(this, other.increment())
+    operator fun rangeUntil(to: UInt128) =
+        if (to <= MIN_VALUE)  UInt128Range(ONE, ZERO)
+        else  this .. (to - 1uL)
 
     infix fun rotateRight(dist: Int): UInt128 {
         val shift = dist and 127
