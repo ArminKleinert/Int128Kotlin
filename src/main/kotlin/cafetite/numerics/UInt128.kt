@@ -1,4 +1,4 @@
-package de.kleinert.numerics
+package cafetite.numerics
 
 data class UInt128(val high: ULong, val low: ULong) : Comparable<UInt128>, Number() {
     companion object {

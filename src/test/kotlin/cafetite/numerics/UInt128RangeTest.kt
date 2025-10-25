@@ -1,4 +1,4 @@
-package de.kleinert.numerics
+package cafetite.numerics
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -178,8 +178,8 @@ class UInt128RangeTest {
 
     @Test
     fun testInvalidStep() {
-        Assertions.assertThrows(IllegalArgumentException::class.java) {UInt128Range(zero, five, Int128.ZERO)}
-        Assertions.assertThrows(IllegalArgumentException::class.java) {UInt128Range(zero, five, Int128.MIN_VALUE)}
+        Assertions.assertThrows(IllegalArgumentException::class.java) { UInt128Range(zero, five, Int128.ZERO) }
+        Assertions.assertThrows(IllegalArgumentException::class.java) { UInt128Range(zero, five, Int128.MIN_VALUE) }
     }
 
     @Test fun testClosedSingletonRange() {
@@ -216,9 +216,9 @@ class UInt128RangeTest {
 
     @Test fun testClosedRangeIterable() {
         val r =zero..five
-        Assertions.assertEquals(listOf(0,1,2,3,4,5).map{UInt128.valueOf(it)}, r.toList())
-        Assertions.assertEquals(listOf(0,1,2,3,4,5).filter{it%2==0}.map{UInt128.valueOf(it)},
-            r.filter{(it%UInt128.valueOf(2uL)).isZero()}.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4,5).map{ UInt128.valueOf(it) }, r.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4,5).filter{it%2==0}.map{ UInt128.valueOf(it) },
+            r.filter{(it% UInt128.valueOf(2uL)).isZero()}.toList())
 
         var sum = UInt128.ZERO
         for (i in r) sum += i
@@ -227,9 +227,9 @@ class UInt128RangeTest {
 
     @Test fun testOpenRangeIterable() {
         val r =zero..<five
-        Assertions.assertEquals(listOf(0,1,2,3,4).map{UInt128.valueOf(it)}, r.toList())
-        Assertions.assertEquals(listOf(0,1,2,3,4).filter{it%2==0}.map{UInt128.valueOf(it)},
-            r.filter{(it%UInt128.valueOf(2uL)).isZero()}.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4).map{ UInt128.valueOf(it) }, r.toList())
+        Assertions.assertEquals(listOf(0,1,2,3,4).filter{it%2==0}.map{ UInt128.valueOf(it) },
+            r.filter{(it% UInt128.valueOf(2uL)).isZero()}.toList())
 
         var sum = UInt128.ZERO
         for (i in r) sum += i

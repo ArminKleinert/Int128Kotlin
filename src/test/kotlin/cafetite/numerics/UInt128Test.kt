@@ -1,4 +1,4 @@
-package de.kleinert.numerics
+package cafetite.numerics
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test

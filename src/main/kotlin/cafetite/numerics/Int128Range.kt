@@ -1,21 +1,25 @@
-package de.kleinert.numerics
+package cafetite.numerics
 
-class UInt128Range(
-    override val start: UInt128,
-    override val endInclusive: UInt128,
+
+data class Int128Range(
+    override val start: Int128,
+    override val endInclusive: Int128,
     val step: Int128 = Int128.ONE
-) : ClosedRange<UInt128>, OpenEndRange<UInt128>, Iterable<UInt128> {
+) : ClosedRange<Int128>, OpenEndRange<Int128>, Iterable<Int128> {
     companion object {
-
-        private fun differenceModulo(a: UInt128, b: UInt128, c: UInt128): UInt128 {
-            val ac = a % c
-            val bc = b % c
-            return if (ac >= bc) ac - bc else ac - bc + c
+        private inline fun mod(a: Int128, b: Int128): Int128 {
+            val mod = a % b
+            return if (mod.isPositive()) mod else mod + b
         }
-        private fun getProgressionLastElement(start: UInt128, end: UInt128, step: Int128): UInt128 = when {
-            step > Int128.ZERO -> if (start >= end) end else end - differenceModulo(end, start, step.toUInt128())
-            step < Int128.ZERO -> if (start <= end) end else end + differenceModulo(start, end, (-step).toUInt128())
-            else -> throw kotlin.IllegalArgumentException("Step is zero.")
+
+        private inline fun differenceModulo(a: Int128, b: Int128, c: Int128): Int128 {
+            return mod(mod(a, c) - mod(b, c), c)
+        }
+
+        private fun getProgressionLastElement(start: Int128, end: Int128, step: Int128): Int128 = when {
+            step.isZero() -> throw kotlin.IllegalArgumentException("Step is zero.")
+            step.isPositive() -> if (start >= end) end else end - differenceModulo(end, start, step)
+            else -> if (start <= end) end else end + differenceModulo(start, end, -step)
         }
     }
 
@@ -24,21 +28,21 @@ class UInt128Range(
         if (step == Int128.MIN_VALUE) throw kotlin.IllegalArgumentException("Step must be greater than Int128.MIN_VALUE to avoid overflow on negation.")
     }
 
-    val isAscending = step > Int128.ZERO
+    private val isAscending = step > Int128.ZERO
 
     /**
      * The first element in the progression.
      */
-    val first: UInt128 = start
+    val first: Int128 = start
 
     /**
      * The last element in the progression.
      */
-    val last: UInt128 = getProgressionLastElement(start, endInclusive, step)
+    val last: Int128 = getProgressionLastElement(start, endInclusive, step)
 
-    override val endExclusive: UInt128
+    override val endExclusive: Int128
         get() {
-            if (last == UInt128.MAX_VALUE) error("Cannot return the exclusive upper bound of a range that includes MAX_VALUE.")
+            if (last == Int128.MAX_VALUE) error("Cannot return the exclusive upper bound of a range that includes MAX_VALUE.")
             return last.increment()
         }
 
@@ -54,33 +58,33 @@ class UInt128Range(
         get() {
             if (isEmpty()) return UInt128.ONE
             val diff = if (isAscending) endInclusive - start else start - endInclusive
-            return (diff / step.toUInt128()) + UInt128.ONE
+            return (diff / step.abs()).toUInt128() + UInt128.ONE
         }
 
-    override fun contains(value: UInt128): Boolean {
+    override fun contains(value: Int128): Boolean {
         if (isAscending) {
             if (value < start || value > endInclusive) return false
         } else {
             if (value > start || value < endInclusive) return false
         }
         val diff = (value - start)
-        return (diff % step.abs().toUInt128()).isZero()
+        return (diff % step).isZero()
     }
 
-    override fun iterator(): Iterator<UInt128> = object : Iterator<UInt128> {
-        private val finalElement: UInt128 = last
+    override fun iterator(): Iterator<Int128> = object : Iterator<Int128> {
+        private val finalElement: Int128 = last
         private var hasNext: Boolean = if (step > Int128.ZERO) first <= last else first >= last
-        private var next: UInt128 = if (hasNext) first else finalElement
+        private var next: Int128 = if (hasNext) first else finalElement
 
         override fun hasNext(): Boolean = hasNext
 
-        override fun next(): UInt128 {
+        override fun next(): Int128 {
             val value = next
             if (value == finalElement) {
                 if (!hasNext) throw kotlin.NoSuchElementException()
                 hasNext = false
             } else {
-                next += step.toUInt128()
+                next += step
             }
             return value
         }
@@ -94,12 +98,12 @@ class UInt128Range(
      */
     override fun isEmpty(): Boolean = if (step.isGtZero()) first > last else first < last
 
-    fun reversed() = UInt128Range(last, first, -step)
+    fun reversed() = Int128Range(last, first, -step)
 
-    infix fun step(step: Int128): UInt128Range = UInt128Range(first, last, if (this.step > Int128.ZERO) step else -step)
+    infix fun step(step: Int128): Int128Range = Int128Range(first, last, if (this.step > Int128.ZERO) step else -step)
 
     override fun equals(other: Any?): Boolean =
-        other is UInt128Range && (isEmpty() && other.isEmpty() ||
+        other is Int128Range && (isEmpty() && other.isEmpty() ||
                 first == other.first && last == other.last && step == other.step)
 
     override fun hashCode(): Int =
