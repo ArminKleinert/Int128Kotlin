@@ -6,7 +6,6 @@ class UInt128Range(
     val step: Int128 = Int128.ONE
 ) : ClosedRange<UInt128>, OpenEndRange<UInt128>, Iterable<UInt128> {
     companion object {
-
         private fun differenceModulo(a: UInt128, b: UInt128, c: UInt128): UInt128 {
             val ac = a % c
             val bc = b % c

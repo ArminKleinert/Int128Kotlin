@@ -1,20 +1,20 @@
 package cafetite.numerics
 
-
 data class Int128Range(
     override val start: Int128,
     override val endInclusive: Int128,
     val step: Int128 = Int128.ONE
 ) : ClosedRange<Int128>, OpenEndRange<Int128>, Iterable<Int128> {
     companion object {
+        @Suppress("NOTHING_TO_INLINE")
         private inline fun mod(a: Int128, b: Int128): Int128 {
             val mod = a % b
             return if (mod.isPositive()) mod else mod + b
         }
 
-        private inline fun differenceModulo(a: Int128, b: Int128, c: Int128): Int128 {
-            return mod(mod(a, c) - mod(b, c), c)
-        }
+        @Suppress("NOTHING_TO_INLINE")
+        private inline fun differenceModulo(a: Int128, b: Int128, c: Int128): Int128 =
+            mod(mod(a, c) - mod(b, c), c)
 
         private fun getProgressionLastElement(start: Int128, end: Int128, step: Int128): Int128 = when {
             step.isZero() -> throw kotlin.IllegalArgumentException("Step is zero.")
